@@ -14,6 +14,9 @@ class User(db.Model, SerializerMixin):
     password=db.Column(db.String)
     role=db.Column(db.String, default="USER")
 
+    tickets=db.relationship("Ticket", backref='user')
+    events=db.relationship("Event", backref="user")
+
     @validates('role')
     def validate_role(self, key, role):
         valid_roles={"ADMIN", "USER"}
@@ -33,6 +36,8 @@ class Event(db.Model, SerializerMixin):
     name=db.Column(db.String())
     max_attendees=(db.Integer)
     date=db.Column(db.DateTime)
+
+    tickets=db.relationship("Ticket", backref="event")
 
 class Ticket(db.Model, SerializerMixin):
     __tablename__='tickets'
