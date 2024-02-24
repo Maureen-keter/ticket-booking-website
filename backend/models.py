@@ -10,5 +10,14 @@ class User(db.Model, SerializerMixin):
     lastName=db.Column(db.String)
     email=db.Column(db.String, unique=True)
     password=db.Column(db.String)
-    role=db.Column(db.String, default="User")
+    role=db.Column(db.String, default="USER")
+
+    @validates('role')
+    def validate_role(self, key, role):
+        valid_roles={"ADMIN", "USER"}
+        normalized_role=role.upper()
+        if role.upper not in valid_roles:
+            raise ValueError("Role must be 'ADMIN or 'USER'")
+        return normalized_role
+
     
