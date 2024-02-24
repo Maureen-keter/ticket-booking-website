@@ -6,6 +6,7 @@ import re
 db=SQLAlchemy()
 
 class User(db.Model, SerializerMixin):
+    __tablename__="users"
     id=db.Column(db.Integer, primary_key=True)
     firstName=db.Column(db.String)
     lastName=db.Column(db.String)
@@ -27,12 +28,14 @@ class User(db.Model, SerializerMixin):
         return email
     
 class Event(db.Model, SerializerMixin):
+    __tablename__='events'
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String())
     max_attendees=(db.Integer)
     date=db.Column(db.DateTime)
 
 class Ticket(db.Model, SerializerMixin):
+    __tablename__='tickets'
     id=db.Column(db.Integer, primary_key=True)
     ticket_type=db.Column(db.String)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
