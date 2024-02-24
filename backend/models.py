@@ -41,6 +41,14 @@ class Ticket(db.Model, SerializerMixin):
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
     event_id=db.Column(db.Integer, db.ForeignKey('events.id'))
 
+    @validates('ticket_type')
+    def validate_tickets(self, key, ticket_type):
+        valid_tickets=['VIP', 'REGULAR']
+        normalized_tickets=ticket_type.upper
+        if ticket_type.upper not in valid_tickets:
+            raise ValueError("Ticket must either be 'VIP' or 'REGULAR'")
+        return normalized_tickets
+
   
 
 
