@@ -30,6 +30,14 @@ class Event(db.Model, SerializerMixin):
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String())
     max_attendees=(db.Integer)
+    date=db.Column(db.DateTime)
+
+class Ticket(db.Model, SerializerMixin):
+    id=db.Column(db.Integer, primary_key=True)
+    ticket_type=db.Column(db.String)
+    user_id=db.Column(db.Integer, db.ForeignKey('users.id'))
+    event_id=db.Column(db.Integer, db.ForeignKey('events.id'))
+
   
 
 
