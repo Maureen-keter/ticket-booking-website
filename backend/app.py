@@ -121,6 +121,32 @@ class Events(Resource):
     def get(self):
         events=[event.to_dict for event in Event.query.all()]
         return make_response(jsonify(events), 200)
+
+    def post(self):
+        data=request.get_json()
+        new_event=Event(name=data['name'], max_attendees=data['max_attendees'], date=data['date'])
+        db.session.add(new_event)
+        db.session.commit()
+        return make_response(jsonify({"message":"new event created successfully"}), 200)
+    
+class EventById(Resource):
+    def get(self, id):
+        event=Event.query.filter_by(id=id).first().to_dict()
+        return make_response(jsonify(event), 200)
+    def patch(self, id):
+        event = Event.query.get(id)
+        if not event:
+            abort(404, detail = f'Event with {id=} does not exist')
+        data = request.get_json()
+        for key, value in data.items():
+            if value is None:
+                continue
+            setattr(event, key, value)
+        db.session.commit()
+        return event.to_dict()
+    
+
+
         
 
 
