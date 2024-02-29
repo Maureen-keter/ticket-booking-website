@@ -155,11 +155,6 @@ class Tickets(Resource):
     def get(self):
         events=[ticket.to_dict for ticket in Ticket.query.all()]
         return make_response(jsonify(events), 200)
-
-class TicketById(Resource):
-    def get(self, id):
-        ticket=Ticket.query.get(id).to_dict()
-        return make_response(jsonify(ticket), 200)
     
     def post(self):
         data=request.get_json()
@@ -167,6 +162,12 @@ class TicketById(Resource):
         db.session.add(new_ticket)
         db.session.commit()
         return make_response(jsonify({"message":"new event created successfully"}), 200)
+    
+
+class TicketById(Resource):
+    def get(self, id):
+        ticket=Ticket.query.get(id).to_dict()
+        return make_response(jsonify(ticket), 200)
     
     
     def patch(self, id):
