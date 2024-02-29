@@ -1,5 +1,5 @@
 from flask import Flask, make_response, jsonify, request
-from models import db
+from models import db, User, Event, Ticket
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_restful import Resource, Api, abort
@@ -30,11 +30,20 @@ class Home(Resource):
         )
         return make_response(jsonify(response), 200)
 
-
-class User(Resource):
-    def get():
-        users=[user.to_dict for user in User.query.all()]
-        return make_response(jsonify(users), 200)
+class Users(Resource):
+    def get(self):
+        users_list = []
+        for user in User.query.all():
+            user_dict = {
+                "id": user.id,
+                "firstname": user.firstname,
+                "lastname": user.lastname,
+                "role": user.role,
+                "email": user.email
+            }
+            users_list.append(user_dict)
+        return make_response(jsonify(users_list), 200)
+    
     def post(self):
         data = request.get_json()
         existing_user = User.query.filter_by(email=data['email']).first()
@@ -51,6 +60,18 @@ class User(Resource):
         else:
             abort(403, detail="Password and Confirm Password do not match")
 
+    
+class UserLogin(Resource):
+    def post(self):
+        data = request.get_json()
+        user = User.query.filter_by(email=data['email']).first()
+        if not user:
+            abort(404, detail="User does not exist")
+        if not bcrypt.check_password_hash(user.password, data['password']):
+            abort(403, detail="Password is not correct")
+        metadata = {"role": user.role}
+        token = create_access_token(identity=user.email, additional_claims=metadata)
+        return {"jwt-access-token": token}
 
 class UserById(Resource):
     def get(self,id):
@@ -61,7 +82,7 @@ class UserById(Resource):
                 "firstname": user.firstname,
                 "lastname": user.lastname,
                 "role": user.role,
-                "email": user.email,
+                "email": user.email
             }
             users_list.append(user_dict)
         return make_response(jsonify(users_list), 200)
@@ -81,8 +102,11 @@ class UserById(Resource):
     def delete(self,id):
         user = User.query.filter_by(id=id).first()
         if not user:
-            abort(404, detail = f'User with {id=} does not exist')
-        
+            abort(404, detail = f'User with {id=} does not exist')        
+        db.session.delete(user)
+        db.session.commit()
+        return {"detail": f"user with {id=} has been deleted successfully"}
+
 class UserByToken(Resource):
     @jwt_required()
     def get(self):
@@ -92,6 +116,11 @@ class UserByToken(Resource):
         if not current_user:
             abort(404, detail="User not found")
         return make_response(jsonify(current_user.to_dict()), 200)
+
+class Events(Resource):
+    def get(self):
+        events=[event.to_dict for event in Event.query.all()]
+        return make_response(jsonify(events), 200)
         
 
 
@@ -100,7 +129,7 @@ class UserByToken(Resource):
 
 
 api.add_resource(Home, '/')
-api.add_resource(User,'/users')
+api.add_resource(Users,'/users')
 api.add_resource(UserLogin,'/login')
 api.add_resource(UserById,'/users/<int:id>')
 api.add_resource(UserByToken,'/user-token')
