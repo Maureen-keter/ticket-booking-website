@@ -144,7 +144,12 @@ class EventById(Resource):
             setattr(event, key, value)
         db.session.commit()
         return event.to_dict()
-    
+    def delete(self, id):
+        event = Event.query.get(id)
+        if not event:
+            abort(404, detail = f'Event with {id=} does not exist')
+        db.session.delete(event)
+        db.session.commit()  
 
 
         
@@ -159,6 +164,8 @@ api.add_resource(Users,'/users')
 api.add_resource(UserLogin,'/login')
 api.add_resource(UserById,'/users/<int:id>')
 api.add_resource(UserByToken,'/user-token')
+api.add_resource(Event,'/events')
+api.add_resource(EventById, '/events/<int:id>')
 
 if __name__=='__main__':
     app.run(debug=True)
