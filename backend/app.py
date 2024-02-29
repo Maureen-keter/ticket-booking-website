@@ -83,7 +83,16 @@ class UserById(Resource):
         if not user:
             abort(404, detail = f'User with {id=} does not exist')
         
-
+class UserByToken(Resource):
+    @jwt_required()
+    def get(self):
+        current_user_email = get_jwt_identity()
+        print(current_user_email)
+        current_user = User.query.filter_by(email=current_user_email).first()
+        if not current_user:
+            abort(404, detail="User not found")
+        return make_response(jsonify(current_user.to_dict()), 200)
+        
 
 
 
@@ -91,8 +100,10 @@ class UserById(Resource):
 
 
 api.add_resource(Home, '/')
-api.add_resource(User, 'users')
-api.add_resource(UserById, 'users/<int:id>')
+api.add_resource(User,'/users')
+api.add_resource(UserLogin,'/login')
+api.add_resource(UserById,'/users/<int:id>')
+api.add_resource(UserByToken,'/user-token')
 
 if __name__=='__main__':
     app.run(debug=True)
