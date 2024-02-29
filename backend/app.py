@@ -52,6 +52,38 @@ class User(Resource):
             abort(403, detail="Password and Confirm Password do not match")
 
 
+class UserById(Resource):
+    def get(self,id):
+        users_list = []
+        for user in User.query.filter_by(id=id):
+            user_dict = {
+                "id": user.id,
+                "firstname": user.firstname,
+                "lastname": user.lastname,
+                "role": user.role,
+                "email": user.email,
+            }
+            users_list.append(user_dict)
+        return make_response(jsonify(users_list), 200)
+    
+    def patch(self,id):
+        user = User.query.get(id)
+        if not user:
+            abort(404, detail = f'User with {id=} does not exist')
+        data = request.get_json()
+        for key, value in data.items():
+            if value is None:
+                continue
+            setattr(user, key, value)
+        db.session.commit()
+        return user.to_dict()
+    
+    def delete(self,id):
+        user = User.query.filter_by(id=id).first()
+        if not user:
+            abort(404, detail = f'User with {id=} does not exist')
+        
+
 
 
 
