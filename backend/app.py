@@ -29,10 +29,7 @@ class Home(Resource):
         response_dict={
             "Message":"Ticket booking API"
         }
-        response=make_response(
-            response_dict,
-        )
-        return make_response(jsonify(response), 200)
+        return make_response(jsonify(response_dict), 200)
       
 
 
