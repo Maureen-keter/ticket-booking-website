@@ -18,8 +18,7 @@ class Tickets(Resource):
 class TicketById(Resource):
     def get(self, id):
         ticket=Ticket.query.get(id).to_dict()
-        return make_response(jsonify(ticket), 200)
-    
+        return make_response(jsonify(ticket), 200)    
     
     def patch(self, id):
         ticket = Ticket.query.get(id)
